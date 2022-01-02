@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const { argv } = require('process');
 
+const prompt = require("prompt-sync")({ sigint: true });
+
 if (argv.length < 3) {
     console.log("Usage: node import.js <file> <optional-args>");
     process.exit(1);
@@ -30,4 +32,9 @@ rl.on('close', function () {
     rl.close();
     contacts.save();
     console.log("Final index saved");
+    while (true) {
+        const query = prompt("Enter a search: ");
+        const res = contacts.search(query);
+        console.log(res);
+    }
 });
