@@ -8,7 +8,7 @@ if (contactPath == "/contactsInfo.json") contactPath = path.resolve("/home/pi/pe
 const contacts = new Indexer(contactPath);
 //loop through a file and read each line
 const readLine = require('readline');
-if (argv.length < 2) {
+if (argv.length < 3) {
     console.log("Usage: node import.js <file>");
     process.exit(1);
 }
