@@ -1,4 +1,6 @@
 const Indexer = require('friends-js');
+const fs = require('fs');
+const path = require('path');
 
 let contactPath = path.resolve("./contactsInfo.json");
 if (contactPath == "/contactsInfo.json") contactPath = path.resolve("/home/pi/personal-site-server/contactsInfo.json");
