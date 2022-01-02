@@ -1,13 +1,18 @@
 const Indexer = require('friends-js');
 const fs = require('fs');
 const path = require('path');
+const { argv } = require('process');
 
 let contactPath = path.resolve("./contactsInfo.json");
 if (contactPath == "/contactsInfo.json") contactPath = path.resolve("/home/pi/personal-site-server/contactsInfo.json");
 const contacts = new Indexer(contactPath);
 //loop through a file and read each line
 const readLine = require('readline');
-var file = '/home/willfarhat/Desktop/Projects/contacts-parser/output.txt';
+if (argv.length < 2) {
+    console.log("Usage: node import.js <file>");
+    process.exit(1);
+}
+var file = argv[2];
 var rl = readLine.createInterface({
     input: fs.createReadStream(file),
     output: process.stdout,
