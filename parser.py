@@ -1,4 +1,6 @@
 import vobject
+import os
+import sys
 
 
 def parse_vcard(path):
@@ -10,8 +12,12 @@ def parse_vcard(path):
 
 
 def __main__():
-    data = parse_vcard("./Contacts.vcf")
+    if len(sys.argv) < 2:
+        print("Usage: python parser.py <file> <optional-args>")
+        exit(1)
+    data = parse_vcard(sys.argv[1])
     f = open("output.txt", "w")
+    print("Parsing data")
     for entry in data:
         if "fn" in entry.contents:
             data = entry.contents["fn"][0].value
@@ -23,7 +29,11 @@ def __main__():
             continue
         if (
             "email" in entry.contents
-            and "chandlerschool.org" in entry.contents["email"][0].value
+            and len(entry.contents.keys()) < 6
+            and (
+                "chandlerschool.org" in entry.contents["email"][0].value
+                or "hwemail.com" in entry.contents["email"][0].value
+            )
         ):
             continue
         for item in entry.contents:
@@ -34,18 +44,26 @@ def __main__():
                 or item == "photo"
                 or item == "adr"
                 or item == "org"
-                or item == "x-android-custom"
             ):
                 continue
             val = entry.contents[item][0].value
-            if item == "tel":
-                val.replace("-", "").replace(" ", "")
+            if item == "x-android-custom":
+                val = "/ " + (
+                    val.replace("vnd.android.cursor.item/nickname", "")
+                    .replace(";1", "")
+                    .replace(";", "")
+                )
+            elif item == "tel":
+                val = val.replace("-", "").replace(" ", "")
                 if val[0:1] == "+":
                     val = val[2:]
             data += " " + val
-        data.replace("  ", " ").replace(";", "")
+        data = data.replace("  ", " ").replace(";", "")
         f.write(data + "\n")
     f.close()
+    print("Converting to index")
+
+    os.system("node import.js ./output.txt " + "".join(sys.argv[2:]))
 
 
 if __name__ == "__main__":

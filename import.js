@@ -3,15 +3,20 @@ const fs = require('fs');
 const path = require('path');
 const { argv } = require('process');
 
+if (argv.length < 3) {
+    console.log("Usage: node import.js <file> <optional-args>");
+    process.exit(1);
+}
+
 let contactPath = path.resolve("./contactsInfo.json");
-if (contactPath == "/contactsInfo.json") contactPath = path.resolve("/home/pi/personal-site-server/contactsInfo.json");
+const username = require("os").userInfo().username;
+if (contactPath == "/contactsInfo.json" || username == "pi") contactPath = path.resolve("/home/pi/personal-site-server/contactsInfo.json");
+if (argv.includes("--force") && fs.existsSync(contactPath)) {
+    fs.unlinkSync(contactPath);
+}
 const contacts = new Indexer(contactPath);
 //loop through a file and read each line
 const readLine = require('readline');
-if (argv.length < 3) {
-    console.log("Usage: node import.js <file>");
-    process.exit(1);
-}
 var file = argv[2];
 var rl = readLine.createInterface({
     input: fs.createReadStream(file),
@@ -21,9 +26,8 @@ var rl = readLine.createInterface({
 rl.on('line', function (text) {
     contacts.add(text)
 });
-//timeout
-setTimeout(() => {
+rl.on('close', function () {
     rl.close();
     contacts.save();
-    console.log("saved");
-}, 3000);
+    console.log("Final index saved");
+});
